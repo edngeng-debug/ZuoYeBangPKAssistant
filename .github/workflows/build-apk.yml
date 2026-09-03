@@ -9,31 +9,35 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Create project from embedded archive
+      - uses: actions/checkout@v4
+
+      - name: Extract Android project
         shell: bash
         run: |
-          mkdir -p /tmp/zyb
-          cat > /tmp/zyb/project.b64 <<'ARCHIVE'
-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
+          set -e
+          test -f ZuoYeBangPKAssistant_Project.zip
+          unzip -q ZuoYeBangPKAssistant_Project.zip -d project
+          cp -a project/. .
+          rm -rf project ZuoYeBangPKAssistant_Project.zip
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Build debug APK
+        run: gradle --no-daemon assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZuoYeBangPKAssistant-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
 iQ8M1bgMIRdJ1E/SSwB1LZeGjtMMmu4OcDae0BdvAg0K0hPPOFB/Vf07p5Y3tNwqgMyArVI4Z3hTCmv6ZhayAgjXFHqNbOfvKLJG
 6ikvAL9WsKH+AcD2GO+e9fwFWN8AcziVbxzttQqTlFeVvTiyDkhkRQRCkat1NtEBwaZnspHHpaLR0XP1rKiU1nBxjbqGRXOyiOwv
 PeLv/COHa8o63AswmZccLslubgESDLLE0MshK9JOD3E0BFOGzqBgEDgOIxS8NzeTgBeYA0hSSp9gYpl/jm6am5VCUCnv0xls+CX7
